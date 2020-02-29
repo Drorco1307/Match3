@@ -29,6 +29,7 @@ public class CellView : MonoBehaviour
                 _spriteComp.color = Color.yellow;
                 break;
             default:
+                _spriteComp.color = Color.white;
                 break;
         }
         

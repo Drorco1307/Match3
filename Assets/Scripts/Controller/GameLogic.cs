@@ -22,13 +22,20 @@ public class GameLogic : MonoBehaviour
             }
         }
 
+        List<DirectedPoint> lstDetectedMatches = DetectMatches(out bool isDetected);
+        while (isDetected)
+        {
+            EraseMatches(lstDetectedMatches);
+            DropOverEmpty();
+            ReInitGrid();
+            lstDetectedMatches = DetectMatches(out isDetected);
+        }
         BoardViewManagerRef.Init(Grid);
-        List<DirectedPoint> lstDetectedMatches = DetectMatches();
     }
 
     #region logic functions
 
-    public List<DirectedPoint> DetectMatches()
+    public List<DirectedPoint> DetectMatches(out bool isDetected)
     {
         List<DirectedPoint> lstTrios = new List<DirectedPoint>();
         for (int i = 0; i < GRID_ROWS; i++)
@@ -54,6 +61,7 @@ public class GameLogic : MonoBehaviour
             }
         }
 
+        isDetected = lstTrios.Count > 0;
         return lstTrios;
     }
 
@@ -129,15 +137,80 @@ public class GameLogic : MonoBehaviour
         }
     }
 
-    public void EraseTrios()
+    public void EraseMatches(List<DirectedPoint> lstDetectedMatches)
     {
-
+        foreach (DirectedPoint point in lstDetectedMatches)
+        {
+            switch (point.Direction)
+            {
+                case Direction.Right:
+                    int a = point.Point.Y;
+                    for (int j = 0; j < point.Length; j++)
+                    {
+                        Grid[point.Point.X, a] = -1;
+                        a++;
+                    }
+                    break;
+                case Direction.Down:
+                    int b = point.Point.X;
+                    for (int i = 0; i < point.Length; i++)
+                    {
+                        Grid[b, point.Point.Y] = -1;
+                        b++;
+                    }
+                    break;
+                case Direction.Left:
+                    int c = point.Point.Y;
+                    for (int j = 0; j < point.Length; j++)
+                    {
+                        Grid[point.Point.X, c] = -1;
+                        c--;
+                    }
+                    break;
+                case Direction.Up:
+                    int d = point.Point.X;
+                    for (int i = 0; i < point.Length; i++)
+                    {
+                        Grid[d, point.Point.Y] = -1;
+                        d--;
+                    }
+                    break;
+            }
+        }
     }
 
     public void DropOverEmpty()
-    { }
+    {
+            int temp;
+        for (int j = 0; j < GRID_COLS; j++)
+        {
+            for (int i = 0; i <= GRID_ROWS-2; i++)
+            {
+                for (int k = 1; k <= GRID_ROWS-1; k++)
+                {
+                    if (Grid[k,j] == -1)
+                    {
+                        temp = Grid[k - 1, j];
+                        Grid[k - 1, j] = -1;
+                        Grid[k,j] = temp;
+                    }
+                }
+            } 
+        }
+    }
 
-    public void FillUpperRows()
-    { }
+    public void ReInitGrid()
+    {
+        for (int i = 0; i < GRID_ROWS; i++)
+        {
+            for (int j = 0; j < GRID_COLS; j++)
+            {
+                if (Grid[i,j] == -1)
+                {
+                    Grid[i, j] = Random.Range(0, 4);
+                }
+            }
+        }
+    }
     #endregion
 }
