@@ -5,14 +5,25 @@ using UnityEngine;
 public class GameLogic : MonoBehaviour
 {
     public BoardViewManager BoardViewManagerRef;
+    /// <summary>
+    /// grid width
+    /// </summary>
+    public static int GRID_COLS = 9; 
 
-    public static int GRID_COLS = 9;
+    /// <summary>
+    /// grid height
+    /// </summary>
     public static int GRID_ROWS = 10;
+
+    /// <summary>
+    /// raw data
+    /// </summary>
     public int[,] Grid;
 
     // Start is called before the first frame update
     void Start()
     {
+        BoardViewManagerRef.Init();
         Grid = new int[GRID_ROWS, GRID_COLS];
         for (int i = 0; i < GRID_ROWS; i++)
         {
@@ -22,7 +33,7 @@ public class GameLogic : MonoBehaviour
             }
         }
 
-        List<DirectedPoint> lstDetectedMatches = DetectMatches(out bool isDetected);
+        List<MatchPoint> lstDetectedMatches = DetectMatches(out bool isDetected);
         while (isDetected)
         {
             EraseMatches(lstDetectedMatches);
@@ -30,42 +41,62 @@ public class GameLogic : MonoBehaviour
             ReInitGrid();
             lstDetectedMatches = DetectMatches(out isDetected);
         }
-        BoardViewManagerRef.Init(Grid);
+        BoardViewManagerRef.UpdateData(Grid);
+    }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+
+        }
     }
 
     #region logic functions
 
-    public List<DirectedPoint> DetectMatches(out bool isDetected)
+    /// <summary>
+    /// Iterates through grid to find all possible matches
+    /// </summary>
+    /// <param name="isDetected">An out param indicating if a single match has been found</param>
+    /// <returns>A list of all positions that are a part of a match</returns>
+    public List<MatchPoint> DetectMatches(out bool isDetected)
     {
-        List<DirectedPoint> lstTrios = new List<DirectedPoint>();
+        List<MatchPoint> lstMatches = new List<MatchPoint>();
         for (int i = 0; i < GRID_ROWS; i++)
         {
             for (int j = 0; j < GRID_COLS; j++)
             {
                 if (j < GRID_COLS - 1)
                 {
-                    DetectMatch(i, j, Direction.Right, lstTrios);
+                    DetectMatch(i, j, Direction.Right, lstMatches);
                 }
                 if (j > 1)
                 {
-                    DetectMatch(i, j, Direction.Left, lstTrios);
+                    DetectMatch(i, j, Direction.Left, lstMatches);
                 }
                 if (i > 1)
                 {
-                    DetectMatch(i, j, Direction.Up, lstTrios);
+                    DetectMatch(i, j, Direction.Up, lstMatches);
                 }
                 if (i < GRID_ROWS - 1)
                 {
-                    DetectMatch(i, j, Direction.Down, lstTrios);
+                    DetectMatch(i, j, Direction.Down, lstMatches);
                 }
             }
         }
 
-        isDetected = lstTrios.Count > 0;
-        return lstTrios;
+        isDetected = lstMatches.Count > 0;
+        return lstMatches;
     }
 
-    private void DetectMatch(int i, int j, Direction direction, List<DirectedPoint> lstTrios)
+    /// <summary>
+    /// Detects a single match in the specified direction 
+    /// </summary>
+    /// <param name="i">i position on the grid</param>
+    /// <param name="j">j position on the grid</param>
+    /// <param name="direction">the direction in which to search for a match</param>
+    /// <param name="lstMatches">A list of points the are a part of a match</param>
+    private void DetectMatch(int i, int j, Direction direction, List<MatchPoint> lstMatches)
     {
         int length = 1;
         int k = 0;
@@ -127,51 +158,55 @@ public class GameLogic : MonoBehaviour
 
         if (length > 2)
         {
-            lstTrios.Add(new DirectedPoint()
+            lstMatches.Add(new MatchPoint()
             {
-                Point = new Point(i, j),
+                PointPosition = new Point(i, j),
                 Direction = direction,
-                Length = length
+                MatchLength = length
             });
             print($"i:{i}, j:{j}, Direction:{direction.ToString()}, length:{length}");
         }
     }
 
-    public void EraseMatches(List<DirectedPoint> lstDetectedMatches)
+    /// <summary>
+    /// Iterates through all found match points and "deletes" them
+    /// </summary>
+    /// <param name="lstDetectedMatches"> The list of found matches</param>
+    public void EraseMatches(List<MatchPoint> lstDetectedMatches)
     {
-        foreach (DirectedPoint point in lstDetectedMatches)
+        foreach (MatchPoint point in lstDetectedMatches)
         {
             switch (point.Direction)
             {
                 case Direction.Right:
-                    int a = point.Point.Y;
-                    for (int j = 0; j < point.Length; j++)
+                    int a = point.PointPosition.Y;
+                    for (int j = 0; j < point.MatchLength; j++)
                     {
-                        Grid[point.Point.X, a] = -1;
+                        Grid[point.PointPosition.X, a] = -1;
                         a++;
                     }
                     break;
                 case Direction.Down:
-                    int b = point.Point.X;
-                    for (int i = 0; i < point.Length; i++)
+                    int b = point.PointPosition.X;
+                    for (int i = 0; i < point.MatchLength; i++)
                     {
-                        Grid[b, point.Point.Y] = -1;
+                        Grid[b, point.PointPosition.Y] = -1;
                         b++;
                     }
                     break;
                 case Direction.Left:
-                    int c = point.Point.Y;
-                    for (int j = 0; j < point.Length; j++)
+                    int c = point.PointPosition.Y;
+                    for (int j = 0; j < point.MatchLength; j++)
                     {
-                        Grid[point.Point.X, c] = -1;
+                        Grid[point.PointPosition.X, c] = -1;
                         c--;
                     }
                     break;
                 case Direction.Up:
-                    int d = point.Point.X;
-                    for (int i = 0; i < point.Length; i++)
+                    int d = point.PointPosition.X;
+                    for (int i = 0; i < point.MatchLength; i++)
                     {
-                        Grid[d, point.Point.Y] = -1;
+                        Grid[d, point.PointPosition.Y] = -1;
                         d--;
                     }
                     break;
@@ -179,6 +214,9 @@ public class GameLogic : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Implements bubble sort on every row
+    /// </summary>
     public void DropOverEmpty()
     {
             int temp;
@@ -199,6 +237,9 @@ public class GameLogic : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Inserts new values over deleted points
+    /// </summary>
     public void ReInitGrid()
     {
         for (int i = 0; i < GRID_ROWS; i++)
