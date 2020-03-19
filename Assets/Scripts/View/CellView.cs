@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class CellView : MonoBehaviour
 {
@@ -32,6 +30,13 @@ public class CellView : MonoBehaviour
                 _spriteComp.color = Color.white;
                 break;
         }
-        
+
+    }
+
+    public void PlayExplosion()
+    {
+        float itweenTime = 1.5f;
+        transform.localScale = Vector3.one;
+        iTween.ScaleTo(gameObject, new Vector3(5, 5, 5), itweenTime);
     }
 }

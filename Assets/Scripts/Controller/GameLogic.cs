@@ -8,7 +8,7 @@ public class GameLogic : MonoBehaviour
     /// <summary>
     /// grid width
     /// </summary>
-    public static int GRID_COLS = 9; 
+    public static int GRID_COLS = 9;
 
     /// <summary>
     /// grid height
@@ -18,18 +18,18 @@ public class GameLogic : MonoBehaviour
     /// <summary>
     /// raw data
     /// </summary>
-    public int[,] Grid;
+    public CellModel[,] Grid;
 
     // Start is called before the first frame update
     void Start()
     {
         BoardViewManagerRef.Init();
-        Grid = new int[GRID_ROWS, GRID_COLS];
+        Grid = new CellModel[GRID_ROWS, GRID_COLS];
         for (int i = 0; i < GRID_ROWS; i++)
         {
             for (int j = 0; j < GRID_COLS; j++)
             {
-                Grid[i, j] = Random.Range(0, 4);
+                Grid[i, j] = new CellModel() {Value = Random.Range(0, 4) };
             }
         }
 
@@ -122,7 +122,7 @@ public class GameLogic : MonoBehaviour
                     if (Grid[k, j] == Grid[i, j])
                     {
                         length++;
-                        k++; 
+                        k++;
                     }
                     else
                         break;
@@ -135,7 +135,7 @@ public class GameLogic : MonoBehaviour
                     if (Grid[i, k] == Grid[i, j])
                     {
                         length++;
-                        k--; 
+                        k--;
                     }
                     else
                         break;
@@ -148,7 +148,7 @@ public class GameLogic : MonoBehaviour
                     if (Grid[k, j] == Grid[i, j])
                     {
                         length++;
-                        k--; 
+                        k--;
                     }
                     else
                         break;
@@ -182,7 +182,8 @@ public class GameLogic : MonoBehaviour
                     int a = point.PointPosition.Y;
                     for (int j = 0; j < point.MatchLength; j++)
                     {
-                        Grid[point.PointPosition.X, a] = -1;
+                        Grid[point.PointPosition.X, a].Value = -1;
+                        Grid[point.PointPosition.X, a].IsExplosion = true;
                         a++;
                     }
                     break;
@@ -190,7 +191,8 @@ public class GameLogic : MonoBehaviour
                     int b = point.PointPosition.X;
                     for (int i = 0; i < point.MatchLength; i++)
                     {
-                        Grid[b, point.PointPosition.Y] = -1;
+                        Grid[b, point.PointPosition.Y].Value = -1;
+                        Grid[b, point.PointPosition.Y].IsExplosion = true;
                         b++;
                     }
                     break;
@@ -198,7 +200,8 @@ public class GameLogic : MonoBehaviour
                     int c = point.PointPosition.Y;
                     for (int j = 0; j < point.MatchLength; j++)
                     {
-                        Grid[point.PointPosition.X, c] = -1;
+                        Grid[point.PointPosition.X, c].Value = -1;
+                        Grid[point.PointPosition.X, c].IsExplosion = true;
                         c--;
                     }
                     break;
@@ -206,7 +209,8 @@ public class GameLogic : MonoBehaviour
                     int d = point.PointPosition.X;
                     for (int i = 0; i < point.MatchLength; i++)
                     {
-                        Grid[d, point.PointPosition.Y] = -1;
+                        Grid[d, point.PointPosition.Y].Value = -1;
+                        Grid[d, point.PointPosition.Y].IsExplosion = true;
                         d--;
                     }
                     break;
@@ -219,21 +223,21 @@ public class GameLogic : MonoBehaviour
     /// </summary>
     public void DropOverEmpty()
     {
-            int temp;
+        int temp;
         for (int j = 0; j < GRID_COLS; j++)
         {
-            for (int i = 0; i <= GRID_ROWS-2; i++)
+            for (int i = 0; i <= GRID_ROWS - 2; i++)
             {
-                for (int k = 1; k <= GRID_ROWS-1; k++)
+                for (int k = 1; k <= GRID_ROWS - 1; k++)
                 {
-                    if (Grid[k,j] == -1)
+                    if (Grid[k, j].Value == -1)
                     {
-                        temp = Grid[k - 1, j];
-                        Grid[k - 1, j] = -1;
-                        Grid[k,j] = temp;
+                        temp = Grid[k - 1, j].Value;
+                        Grid[k - 1, j].Value = -1;
+                        Grid[k, j].Value = temp;
                     }
                 }
-            } 
+            }
         }
     }
 
@@ -246,9 +250,9 @@ public class GameLogic : MonoBehaviour
         {
             for (int j = 0; j < GRID_COLS; j++)
             {
-                if (Grid[i,j] == -1)
+                if (Grid[i, j].Value == -1)
                 {
-                    Grid[i, j] = Random.Range(0, 4);
+                    Grid[i, j].Value = Random.Range(0, 4);
                 }
             }
         }
