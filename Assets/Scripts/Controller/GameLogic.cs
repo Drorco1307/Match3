@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Drawing;
 using UnityEngine;
 
 public class GameLogic : MonoBehaviour
 {
     public BoardViewManager BoardViewManagerRef;
+
+
     /// <summary>
     /// grid width
     /// </summary>
@@ -29,29 +32,48 @@ public class GameLogic : MonoBehaviour
         {
             for (int j = 0; j < GRID_COLS; j++)
             {
-                Grid[i, j] = new CellModel() {Value = Random.Range(0, 4) };
+                Grid[i, j] = new CellModel() { Value = Random.Range(0, 4) };
             }
         }
 
-        List<MatchPoint> lstDetectedMatches = DetectMatches(out bool isDetected);
-        while (isDetected)
-        {
-            EraseMatches(lstDetectedMatches);
-            DropOverEmpty();
-            ReInitGrid();
-            lstDetectedMatches = DetectMatches(out isDetected);
-        }
-        BoardViewManagerRef.UpdateData(Grid);
+        //List<MatchPoint> lstDetectedMatches = DetectMatches(out bool isDetected);
+        //while (isDetected)
+        //{
+        //    EraseMatches(lstDetectedMatches);
+        //    DropOverEmpty();
+        //    ReInitGrid();
+        //    lstDetectedMatches = DetectMatches(out isDetected);
+        //}
+        StartCoroutine(BoardViewManagerRef.UpdateViewFromData(Grid));
     }
 
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-
+            StartCoroutine(EvaluateBoardCR());
         }
     }
 
+    private IEnumerator EvaluateBoardCR()
+    {
+        List<MatchPoint> lstDetectedMatches = DetectMatches(out bool isDetected);
+        if (isDetected)
+        {
+            EraseMatches(lstDetectedMatches);
+            yield return BoardViewManagerRef.UpdateViewFromData(Grid);
+
+            for (int i = 0; i < GRID_ROWS; i++)
+            {
+                for (int j = 0; j < GRID_COLS; j++)
+                {
+                    Grid[i, j].IsExplosion = false;
+                }
+            }
+
+            Debug.Log("end");
+        }
+    }
     #region logic functions
 
     /// <summary>

@@ -6,4 +6,5 @@ public class CellModel
 {
     public int Value;
     public bool IsExplosion = false;
+    public int FallDistance = 0;
 }

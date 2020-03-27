@@ -2,8 +2,12 @@
 
 public class CellView : MonoBehaviour
 {
+    public bool IsAnimating = false;
+    
 
     private SpriteRenderer _spriteComp;
+
+
     // Start is called before the first frame update
     public void Init()
     {
@@ -35,8 +39,16 @@ public class CellView : MonoBehaviour
 
     public void PlayExplosion()
     {
+        IsAnimating = true;
         float itweenTime = 1.5f;
         transform.localScale = Vector3.one;
         iTween.ScaleTo(gameObject, new Vector3(5, 5, 5), itweenTime);
+        iTween.ColorTo(gameObject, new Color(0,0,0,0), itweenTime);
+        Invoke("EndAnimation", itweenTime + .1f);
+    }
+
+    private void EndAnimation()
+    {
+        IsAnimating = false;
     }
 }
