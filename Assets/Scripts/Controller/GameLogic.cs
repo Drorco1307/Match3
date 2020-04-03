@@ -70,7 +70,7 @@ public class GameLogic : MonoBehaviour
                     Grid[i, j].IsExplosion = false;
                 }
             }
-
+            DropOverEmpty();
             Debug.Log("end");
         }
     }
@@ -128,7 +128,7 @@ public class GameLogic : MonoBehaviour
                 k = j + 1;
                 while (k < GRID_COLS)
                 {
-                    if (Grid[i, k] == Grid[i, j])
+                    if (Grid[i, k].Value == Grid[i, j].Value)
                     {
                         length++;
                         k++;
@@ -141,7 +141,7 @@ public class GameLogic : MonoBehaviour
                 k = i + 1;
                 while (k < GRID_ROWS)
                 {
-                    if (Grid[k, j] == Grid[i, j])
+                    if (Grid[k, j].Value == Grid[i, j].Value)
                     {
                         length++;
                         k++;
@@ -154,7 +154,7 @@ public class GameLogic : MonoBehaviour
                 k = j - 1;
                 while (k > 0)
                 {
-                    if (Grid[i, k] == Grid[i, j])
+                    if (Grid[i, k].Value == Grid[i, j].Value)
                     {
                         length++;
                         k--;
@@ -167,7 +167,7 @@ public class GameLogic : MonoBehaviour
                 k = i - 1;
                 while (k > 0)
                 {
-                    if (Grid[k, j] == Grid[i, j])
+                    if (Grid[k, j].Value == Grid[i, j].Value)
                     {
                         length++;
                         k--;

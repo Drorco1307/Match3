@@ -3,7 +3,7 @@
 public class CellView : MonoBehaviour
 {
     public bool IsAnimating = false;
-    
+    public bool IsSelected = false;
 
     private SpriteRenderer _spriteComp;
 
@@ -35,14 +35,15 @@ public class CellView : MonoBehaviour
                 break;
         }
 
+        transform.localScale = Vector3.one * 3f;
+
     }
 
     public void PlayExplosion()
     {
         IsAnimating = true;
         float itweenTime = 1.5f;
-        transform.localScale = Vector3.one;
-        iTween.ScaleTo(gameObject, new Vector3(5, 5, 5), itweenTime);
+        iTween.ScaleTo(gameObject, new Vector3(.1f, .1f, .1f), itweenTime);
         iTween.ColorTo(gameObject, new Color(0,0,0,0), itweenTime);
         Invoke("EndAnimation", itweenTime + .1f);
     }
@@ -51,4 +52,11 @@ public class CellView : MonoBehaviour
     {
         IsAnimating = false;
     }
+
+    private void OnMouseDrag()
+    {
+        IsSelected = true;
+    }
+
+
 }

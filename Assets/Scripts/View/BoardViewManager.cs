@@ -1,10 +1,15 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 
 public class BoardViewManager : MonoBehaviour
 {
     public CellView CellPF;
+    public Action<Direction> CellSwipe;
+
     private CellView[,] _viewCells;
+    private bool _isSwiping = false;
+    private Vector3 _startDragPosition;
 
     public void Init()
     {
@@ -47,6 +52,37 @@ public class BoardViewManager : MonoBehaviour
                 for (int j = 0; j < GameLogic.GRID_COLS; j++)
                 {
                     continueLooping |= _viewCells[i, j].IsAnimating;
+                }
+            }
+        }
+    }
+
+    private void Update()
+    {
+        if (_isSwiping)
+        {
+            if ((_startDragPosition - Input.mousePosition).magnitude > .1f)
+            {
+                _isSwiping = false;
+                // calculate direction of swipe
+                Direction swipeDirection = Direction.Up;
+
+                //call action to gamelogic
+                CellSwipe(swipeDirection);
+            }
+        }
+        else
+        {
+            for (int i = 0; i < GameLogic.GRID_ROWS; i++)
+            {
+                for (int j = 0; j < GameLogic.GRID_COLS; j++)
+                {
+                    if (_viewCells[i, j].IsSelected)
+                    {
+                        _isSwiping = true;
+                        _startDragPosition = Input.mousePosition;
+                        _viewCells[i, j].IsSelected = false;
+                    }
                 }
             }
         }
